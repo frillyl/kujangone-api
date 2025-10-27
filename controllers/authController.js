@@ -78,6 +78,14 @@ export const login = async (req, res) => {
         const ok = await argon2.verify(auth.passwordHash, password);
         if (!ok) return res.status(401).json({ message: "Password salah" });
 
+        let isDefaultPassword = false;
+        if (auth.refType === "Anggota") {
+            const anggota = await Anggota.findById(auth.refId);
+            if (anggota && await argon2.verify(auth.passwordHash, anggota.nrp)) {
+                isDefaultPassword = true;
+            }
+        }
+
         const tokens = createTokens(auth);
         auth.lastLoginAt = new Date();
         await auth.save();
@@ -92,7 +100,7 @@ export const login = async (req, res) => {
         return res.json({
             accessToken: tokens.accessToken,
             role: auth.role,
-            forcePasswordChange: auth.forcePasswordChange,
+            forcePasswordChange: auth.forcePasswordChange || isDefaultPassword,
         });
     } catch (err) {
         console.error(err);

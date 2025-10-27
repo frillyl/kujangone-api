@@ -18,12 +18,16 @@ const AuthUserSchema = new mongoose.Schema({
     refType: {
         type: String,
         enum: ["Anggota", "Karyawan"],
-        required: true
+        required: false
     },
     refId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        required: false,
         refPath: "refType"
+    },
+    isSuperAdmin: {
+        type: Boolean,
+        default: false
     },
     forcePasswordChange: {
         type: Boolean,
@@ -33,9 +37,20 @@ const AuthUserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
     lastLoginAt: {
         type: Date
     }
+}, {
+    timestamps: true,
+});
+
+AuthUserSchema.pre("save", function (next) {
+    this.updatedAt = new Date();
+    next();
 });
 
 const AuthUser = mongoose.model("AuthUser", AuthUserSchema);
