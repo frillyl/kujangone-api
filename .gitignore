@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime Data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Build / Coverage / TMP
+dist/
+build/
+coverage/
+tmp/
