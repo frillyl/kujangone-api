@@ -140,6 +140,7 @@ export const resendVerification = async (req, res) => {
             const remaining = Math.ceil((cooldown - (now - lastSentAt)) / 1000);
             return res.status(429).json({
                 message: `Tunggu ${remaining} detik sebelum mengirim ulang kode verifikasi.`,
+                remaining,
             });
         }
 
@@ -152,7 +153,7 @@ export const resendVerification = async (req, res) => {
         const userData = auth.refId;
         if (userData?.email) await sendVerificationEmail(userData.email, userData.nama, newCode);
 
-        return res.json({ message: "Kode verifikasi baru telah dikirim." });
+        return res.json({ message: "Kode verifikasi baru telah dikirim.", remaining: 60 });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
