@@ -33,6 +33,19 @@ const AuthUserSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationCode: {
+        type: String
+    },
+    verificationExpiresAt: {
+        type: Date
+    },
+    lastVerificationSentAt: {
+        type: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now
