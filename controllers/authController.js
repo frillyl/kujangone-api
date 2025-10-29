@@ -221,6 +221,31 @@ export const login = async (req, res) => {
     }
 };
 
+export const getCurrentUser = async (req, res) => {
+    try {
+        const auth = await AuthUser.findById(req.userId).populate("refId", "nama email noHp").select("-passwordHash -verificationCode -verificationExpiresAt");
+        if (!auth) return res.status(404).json({ message: "User tidak ditemukan" });
+
+        let nama;
+        if (auth.refId && auth.refId.nama) {
+            nama = auth.refId.nama;
+        } else {
+            if (auth.role === "admin" && auth.isSuperAdmin === true) nama = "Administrator";
+            else nama = "Pengguna";
+        }
+
+        res.json({
+            username: auth.username,
+            role: auth.role,
+            nama,
+            email: auth.refId?.email || null,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 export const changePassword = async (req, res) => {
     try {
         const userId = req.userId;
