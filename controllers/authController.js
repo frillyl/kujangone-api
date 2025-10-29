@@ -210,10 +210,24 @@ export const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
+        let nama;
+        if (auth.refId && auth.refId.nama) {
+            nama = auth.refId.nama;
+        } else {
+            if (auth.role === "admin" && auth.isSuperAdmin === true) nama = "Administrator";
+            else nama = "Pengguna";
+        }
+
         return res.json({
             accessToken: tokens.accessToken,
             role: auth.role,
             forcePasswordChange: auth.forcePasswordChange || isDefaultPassword,
+            user: {
+                username: auth.username,
+                role: auth.role,
+                nama,
+                email: auth.refId?.email || null,
+            }
         });
     } catch (err) {
         console.error(err);
