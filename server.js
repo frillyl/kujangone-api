@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import rateLimit from "./middlewares/rateLimit.js";
 import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
+import anggota from "./routes/anggota.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 app.use("/api/auth", auth);
 app.use("/api/admin", admin);
+app.use("/api/master/anggota", anggota);
 
 app.get("/", (req, res) => res.send("API running..."));
 

@@ -5,7 +5,7 @@ import { requireAuth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.post("/register", [body("nama").notEmpty(), body("nrp").notEmpty()], registerAnggota);
+router.post("/register", [body("nama").notEmpty(), body("nrp").notEmpty(), body("pangkat").notEmpty()], registerAnggota);
 router.post("/login", login);
 router.post("/change-password", requireAuth, changePassword);
 router.post("/verify", verifyAccount);

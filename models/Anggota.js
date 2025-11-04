@@ -29,25 +29,18 @@ const AnggotaSchema = new mongoose.Schema({
         unique: true,
         sparse: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "AuthUser"
-    },
-    updatedAt: {
-        type: Date
     },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "AuthUser"
     }
-});
+}, { timestamps: true });
 
 AnggotaSchema.pre("validate", function (next) {
-    if (!this.email || !this.noHp) {
+    if (!this.email && !this.noHp) {
         next(new Error("Wajib mengisi salah satu: email atau nomor HP."));
     } else {
         next();
