@@ -72,3 +72,24 @@ export const deleteAnggota = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+export const resetPasswordAnggota = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const anggota = await Anggota.findById(id);
+        if (!anggota) return res.status(404).json({ message: "Anggota tidak ditemukan." });
+
+        const auth = await AuthUser.findOne({ refType: "Anggota", refId: anggota._id });
+        if (!auth) return res.status(404).json({ message: "Akun anggota tidak ditemukan." });
+
+        const newHash = await argon2.hash(anggota.nrp);
+        auth.passwordHash = newHash;
+        auth.forcePasswordChange = true;
+        await auth.save();
+
+        res.json({ message: `Password anggota ${anggota.nama} telah direset ke NRP.` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message || "Gagal mereset password." });
+    }
+};
