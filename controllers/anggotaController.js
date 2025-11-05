@@ -1,4 +1,7 @@
 import Anggota from "../models/Anggota.js";
+import AuthUser from "../models/AuthUser.js";
+import argon2 from "argon2";
+import crypto from "crypto";
 
 export const getAllAnggota = async (req, res) => {
     try {
@@ -17,11 +20,29 @@ export const createAnggota = async (req, res) => {
             return res.status(400).json({ message: "Wajib mengisi salah satu: email atau nomor HP." })
         }
 
+        if (await Anggota.findOne({ nrp })) {
+            return res.status(400).json({ message: "NRP sudah terdaftar." });
+        }
+
         const anggota = new Anggota({ nama, nrp, pangkat, status, email, noHp, createdBy: req.userId });
         await anggota.save();
 
+        const passwordHash = await argon2.hash(nrp);
+
+        const auth = new AuthUser({
+            username: nrp,
+            passwordHash,
+            role: "anggota",
+            refType: "Anggota",
+            refId: anggota._id,
+            forcePasswordChange: true,
+            isVerified: true,
+        });
+        await auth.save();
+
         res.status(201).json({ message: "Data anggota berhasil ditambahkan", anggota });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 };
