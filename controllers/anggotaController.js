@@ -1,5 +1,6 @@
 import Anggota from "../models/Anggota.js";
 import AuthUser from "../models/AuthUser.js";
+import Karyawan from "../models/Karyawan.js";
 import argon2 from "argon2";
 import crypto from "crypto";
 
@@ -91,5 +92,51 @@ export const resetPasswordAnggota = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || "Gagal mereset password." });
+    }
+};
+
+export const assignToKaryawan = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { posisi } = req.body;
+
+        const anggota = await Anggota.findById(id);
+        if (!anggota) {
+            return res.status(404).json({ message: "Data anggota tidak ditemukan." });
+        }
+
+        const existingKaryawan = await Karyawan.findOne({ nrp: anggota.nrp });
+        if (existingKaryawan) {
+            return res.status(400).json({ message: "Anggota ini sudah menjadi karyawan." });
+        }
+
+        const karyawan = new Karyawan({
+            nama: anggota.nama,
+            nrp: anggota.nrp,
+            pangkat: anggota.pangkat,
+            posisi,
+            email: anggota.email,
+            noHp: anggota.noHp,
+            createdBy: req.userId,
+        });
+        await karyawan.save();
+
+        const auth = await AuthUser.findOne({ refType: "Anggota", refId: anggota._id });
+        if (!auth) {
+            return res.status(404).json({ message: "Akun anggota tidak ditemukan." });
+        }
+
+        auth.role = posisi.toLowerCase();
+        auth.refType = "Karyawan";
+        auth.refId = karyawan._id;
+        await auth.save();
+
+        res.status(200).json({
+            message: `Anggota ${anggota.nama} berhasil diubah menjadi ${posisi}.`,
+            karyawan,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message || "Gagal assign anggota ke karyawan." });
     }
 };
