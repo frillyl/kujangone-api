@@ -100,40 +100,37 @@ export const assignToKaryawan = async (req, res) => {
         const { id } = req.params;
         const { posisi } = req.body;
 
+        if (!posisi) {
+            return res.status(400).json({ message: "Posisi karyawan wajib diisi." });
+        }
+
         const anggota = await Anggota.findById(id);
         if (!anggota) {
             return res.status(404).json({ message: "Data anggota tidak ditemukan." });
         }
 
-        const existingKaryawan = await Karyawan.findOne({ nrp: anggota.nrp });
-        if (existingKaryawan) {
-            return res.status(400).json({ message: "Anggota ini sudah menjadi karyawan." });
+        if (anggota.status !== "Aktif") {
+            return res.status(400).json({
+                message: `Anggota dengan status ${anggota.status} tidak dapat dijadikan karyawan.`
+            })
         }
-
-        const karyawan = new Karyawan({
-            nama: anggota.nama,
-            nrp: anggota.nrp,
-            pangkat: anggota.pangkat,
-            posisi,
-            email: anggota.email,
-            noHp: anggota.noHp,
-            createdBy: req.userId,
-        });
-        await karyawan.save();
 
         const auth = await AuthUser.findOne({ refType: "Anggota", refId: anggota._id });
         if (!auth) {
             return res.status(404).json({ message: "Akun anggota tidak ditemukan." });
         }
 
+        if (["admin", "sekretaris", "bendahara", "kasir"].includes(auth.role)) {
+            return res.status(400).json({ message: "Anggota ini sudah menjadi karyawan." });
+        }
+
         auth.role = posisi.toLowerCase();
-        auth.refType = "Karyawan";
-        auth.refId = karyawan._id;
+        auth.updatedAt = new Date();
         await auth.save();
 
         res.status(200).json({
             message: `Anggota ${anggota.nama} berhasil diubah menjadi ${posisi}.`,
-            karyawan,
+            updatedRole: auth.role,
         });
     } catch (err) {
         console.error(err);
