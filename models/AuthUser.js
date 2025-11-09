@@ -50,9 +50,17 @@ const AuthUserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "AuthUser"
+    },
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "AuthUser"
     },
     lastLoginAt: {
         type: Date

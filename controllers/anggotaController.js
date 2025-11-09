@@ -1,6 +1,5 @@
 import Anggota from "../models/Anggota.js";
 import AuthUser from "../models/AuthUser.js";
-import Karyawan from "../models/Karyawan.js";
 import argon2 from "argon2";
 import crypto from "crypto";
 
@@ -25,6 +24,14 @@ export const createAnggota = async (req, res) => {
             return res.status(400).json({ message: "NRP sudah terdaftar." });
         }
 
+        if (email && await Anggota.findOne({ email })) {
+            return res.status(400).json({ message: "Email sudah terdaftar." });
+        }
+
+        if (noHp && await Anggota.findOne({ noHp })) {
+            return res.status(400).json({ message: "Nomor HP sudah terdaftar." })
+        }
+
         const anggota = new Anggota({ nama, nrp, pangkat, status, email, noHp, createdBy: req.userId });
         await anggota.save();
 
@@ -38,6 +45,7 @@ export const createAnggota = async (req, res) => {
             refId: anggota._id,
             forcePasswordChange: true,
             isVerified: true,
+            createdBy: req.userId,
         });
         await auth.save();
 
@@ -68,6 +76,7 @@ export const updateAnggota = async (req, res) => {
 
                 authUser.username = nrp;
                 authUser.updatedAt = new Date();
+                authUser.updatedBy = req.userId;
                 await authUser.save();
             }
         }
