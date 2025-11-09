@@ -51,13 +51,30 @@ export const createAnggota = async (req, res) => {
 export const updateAnggota = async (req, res) => {
     try {
         const { id } = req.params;
-        const updateData = { ...req.body, updatedBy: req.userId };
+        const { nrp } = req.body;
 
+        const updateData = { ...req.body, updatedBy: req.userId };
         const anggota = await Anggota.findByIdAndUpdate(id, updateData, { new: true });
+
         if (!anggota) return res.status(404).json({ message: "Data tidak ditemukan." });
+
+        const authUser = await AuthUser.findOne({ refType: "Anggota", refId: anggota._id });
+        if (authUser) {
+            if (nrp && authUser.username !== nrp) {
+                const usernameExist = await AuthUser.findOne({ username: nrp });
+                if (usernameExist) {
+                    return res.status(400).json({ message: "NRP baru sudah digunakan oleh akun lain." });
+                }
+
+                authUser.username = nrp;
+                authUser.updatedAt = new Date();
+                await authUser.save();
+            }
+        }
 
         res.json({ message: "Data anggota berhasil diperbarui", anggota });
     } catch (err) {
+        console.error("Gagal memperbarui data anggota:", err);
         res.status(500).json({ message: err.message });
     }
 };
