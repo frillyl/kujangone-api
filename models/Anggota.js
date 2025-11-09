@@ -16,7 +16,7 @@ const AnggotaSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Aktif", "Tidak Aktif"],
+        enum: ["Aktif", "Non-Aktif"],
         default: "Aktif"
     },
     email: {

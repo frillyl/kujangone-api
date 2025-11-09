@@ -85,7 +85,9 @@ export const deleteAnggota = async (req, res) => {
         const anggota = await Anggota.findByIdAndDelete(id);
         if (!anggota) return res.status(404).json({ message: "Data tidak ditemukan" });
 
-        res.json({ message: "Data anggota berhasil dihapus" });
+        await AuthUser.findOneAndDelete({ refType: "Anggota", refId: id });
+
+        res.json({ message: "Data anggota dan akun terkait berhasil dihapus" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
