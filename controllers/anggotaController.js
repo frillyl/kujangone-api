@@ -59,7 +59,7 @@ export const createAnggota = async (req, res) => {
 export const updateAnggota = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nrp } = req.body;
+        const { nrp, status } = req.body;
 
         const updateData = { ...req.body, updatedBy: req.userId };
         const anggota = await Anggota.findByIdAndUpdate(id, updateData, { new: true });
@@ -75,10 +75,14 @@ export const updateAnggota = async (req, res) => {
                 }
 
                 authUser.username = nrp;
+            }
+                if (status === "Non-Aktif" && ["admin", "sekretaris", "bendahara", "kasir"].includes(authUser.role)) {
+                    authUser.role = "anggota"
+                }
+
                 authUser.updatedAt = new Date();
                 authUser.updatedBy = req.userId;
                 await authUser.save();
-            }
         }
 
         res.json({ message: "Data anggota berhasil diperbarui", anggota });
