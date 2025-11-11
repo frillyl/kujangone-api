@@ -5,7 +5,27 @@ import crypto from "crypto";
 
 export const getAllAnggota = async (req, res) => {
     try {
-        const data = await Anggota.find().populate("createdBy", "nama email").populate("updatedBy", "nama email").sort({ createdAt: -1 });
+        const data = await Anggota.find()
+            .populate({
+                path: "createdBy",
+                select: "nama email refType refId",
+                populate: {
+                path: "refId",
+                select: "nama",
+                model: "Anggota"
+                }
+            })
+            .populate({
+                path: "updatedBy",
+                select: "nama email refType refId",
+                populate: {
+                path: "refId",
+                select: "nama",
+                model: "Anggota"
+                }
+            })
+            .sort({ createdAt: -1 });
+
         res.json(data);
     } catch (err) {
         res.status(500).json({ message: err.message });
