@@ -9,6 +9,7 @@ import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
 import anggota from "./routes/anggota.js";
 import karyawan from "./routes/karyawan.js";
+import agen from "./routes/agen.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/auth", auth);
 app.use("/api/admin", admin);
 app.use("/api/master/anggota", anggota);
 app.use("/api/master/karyawan", karyawan);
+app.use("/api/master/agen", agen);
 
 app.get("/", (req, res) => res.send("API running..."));
 
