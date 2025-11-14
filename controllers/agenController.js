@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import Agen from "../models/Agen.js";
 
 export const getAllAgen = async (req, res) => {
@@ -31,17 +32,20 @@ export const getAllAgen = async (req, res) => {
 
 export const createAgen = async (req, res) => {
     try {
-        const { kode, nama, alamat, email, noHp } = req.body;
+        const { nama, alamat, email, noHp } = req.body;
 
         if (!email && !noHp) {
             return res.status(400).json({ message: "Wajib mengisi salah satu: email atau nomor HP." })
         }
 
-        if (await Agen.findOne({ kode })) {
-            return res.status(400).json({ message: "Kode agen sudah terdaftar." });
+        const kodeRandom = "AG" + crypto.randomBytes(5).toString("hex").toUpperCase();
+
+        const existing = await Agen.findOne({ kode: kodeRandom });
+        if (existing) {
+            return res.status(500).json({ message: "Gagal generate kode unik, coba lagi." })
         }
         
-        const agen = new Agen({ kode, nama, alamat, email, noHp, createdBy: req.userId });
+        const agen = new Agen({ kode: kodeRandom, nama, alamat, email, noHp, createdBy: req.userId });
         await agen.save();
 
         res.status(201).json({ message: "Data agen berhasil ditambahkan", agen });

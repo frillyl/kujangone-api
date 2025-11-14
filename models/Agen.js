@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const AgenSchema = new mongoose.Schema({
     kode: {
         type: String,
-        required: true,
         unique: true
     },
     nama: {
