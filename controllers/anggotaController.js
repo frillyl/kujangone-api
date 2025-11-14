@@ -10,18 +10,18 @@ export const getAllAnggota = async (req, res) => {
                 path: "createdBy",
                 select: "nama email refType refId",
                 populate: {
-                path: "refId",
-                select: "nama",
-                model: "Anggota"
+                    path: "refId",
+                    select: "nama",
+                    model: "Anggota"
                 }
             })
             .populate({
                 path: "updatedBy",
                 select: "nama email refType refId",
                 populate: {
-                path: "refId",
-                select: "nama",
-                model: "Anggota"
+                    path: "refId",
+                    select: "nama",
+                    model: "Anggota"
                 }
             })
             .sort({ createdAt: -1 });
